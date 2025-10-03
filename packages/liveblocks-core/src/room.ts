@@ -3130,9 +3130,7 @@ export function createRoom<
         syncSourceForYjs.destroy();
         uninstallBgTabSpy();
         managedSocket.destroy();
-        () => {
-          _rejectStoragePromise?.();
-        };
+        _rejectStoragePromise?.();
 
         // cleanup will destroy listener
         roomWillDestroy.dispose();
