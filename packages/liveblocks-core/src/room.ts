@@ -2550,6 +2550,7 @@ export function createRoom<
 
   let _getStorage$: Promise<void> | null = null;
   let _resolveStoragePromise: (() => void) | null = null;
+  let _rejectStoragePromise: (() => void) | null = null;
 
   function processInitialStorage(message: InitialDocumentStateServerMsg) {
     const unacknowledgedOps = new Map(context.unacknowledgedOps);
@@ -2588,8 +2589,9 @@ export function createRoom<
   function startLoadingStorage(): Promise<void> {
     if (_getStorage$ === null) {
       refreshStorage({ flush: true });
-      _getStorage$ = new Promise((resolve) => {
+      _getStorage$ = new Promise((resolve, reject) => {
         _resolveStoragePromise = resolve;
+        _rejectStoragePromise = reject;
       });
       notifyStorageStatus();
     }
@@ -3139,6 +3141,7 @@ export function createRoom<
         syncSourceForYjs.destroy();
         uninstallBgTabSpy();
         managedSocket.destroy();
+        _rejectStoragePromise?.();
 
         // cleanup will destroy listener
         roomWillDestroy.dispose();
